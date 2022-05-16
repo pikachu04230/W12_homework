@@ -31,5 +31,16 @@ describe('Potter', () => {
         expect(potter.price).toBe(8 * 4 * 0.8);
         potter.buy([0, 1, 2, 3, 4]);
         expect(potter.price).toBe(8 * 5 * 0.75);
-      });
+    });
+
+    test('Test Several Discounts', () => {
+        potter.buy([0, 0, 1]);
+        expect(potter.price).toBe(8 + (8 * 2 * 0.95));
+        potter.buy([0, 0, 1, 1]);
+        expect(potter.price).toBe(2 * (8 * 2 * 0.95));
+        potter.buy([0, 0, 1, 2, 2, 3]);
+        expect(potter.price).toBe((8 * 4 * 0.8) + (8 * 2 * 0.95));
+        potter.buy([0, 1, 1, 2, 3, 4]);
+        expect(potter.price).toBe(8 + (8 * 5 * 0.75));
+    });
   });
