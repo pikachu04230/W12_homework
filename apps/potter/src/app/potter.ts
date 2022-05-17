@@ -2,7 +2,12 @@ import { min } from "rxjs";
 
 export class Potter {
     private basket: number[] = [];
+    private basicSets: number[][] = [];
     
+    constructor() {
+        this.createBasics(this.basicSets);
+    }
+
     buy (basket: number[]) {
         this.basket = basket;
     }
@@ -102,18 +107,30 @@ export class Potter {
         }
     }
 
-    private calculatePrice(books: number[]) {
+    // Remain 1 series for simpleSet calculation.
+    private extractWholeSeries(list: number[]) {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i] <= 1) {
+                return 0;
+            }
+        }
+
+        const numSeries = Math.min.apply(null, list) - 1;
+        for (let i = 0; i < list.length; i++) {
+            list[i] -= numSeries;
+        }
+        return numSeries;
+    }
+
+    private calculateSimpleSetPrice(books: number[]) {
         if (this.isBasic(books)){
             return this.basicPrice(books);
         }
 
         let possiblePrices: number[] = [];
-        let basicSets: number[][] = [];
 
-        this.createBasics(basicSets);
-
-        for (let i = 0; i < basicSets.length; i++) {
-            let basic = basicSets[i];
+        for (let i = 0; i < this.basicSets.length; i++) {
+            let basic = this.basicSets[i];
             let copiedBooks: number[] = books.slice();
             if (this.isSubstracable(copiedBooks, basic)) {
                 this.popBasic(copiedBooks, basic);
@@ -121,5 +138,11 @@ export class Potter {
             }
         }
         return Math.min.apply(null, possiblePrices);
+    }
+
+    private calculatePrice(books: number[]) {
+        const wholeSeriesPrice = this.extractWholeSeries(books) * 8 * 5 * 0.75;
+        const simpleSetPrice = this.calculateSimpleSetPrice(books);
+        return wholeSeriesPrice + simpleSetPrice;
     }
 }
